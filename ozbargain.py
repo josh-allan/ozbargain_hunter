@@ -11,7 +11,7 @@ load_dotenv()
 
 
 feed = ["https://www.ozbargain.com.au/feed"]
-interesting_searches = ['Samsung', 'Nvidia', 'PS4']
+interesting_searches = ['Samsung', 'Nvidia','PS5', 'Credit Card', 'Sony', 'nuc']
 
 last_updated = None
 matched_ids = []
@@ -32,7 +32,7 @@ def search_feed(feed_url,
     new_matched_ids = []
 
     for entry in feed.entries:
-        #skip over entries that were published before the last entry that was processed
+        #Skip over entries that were published before the last entry that was processed
         if last_updated and entry.published_parsed <= last_updated:
             continue
 
@@ -46,6 +46,8 @@ def search_feed(feed_url,
             matching_entries.append(entry)
             new_matched_ids.append(entry.id)
 
+    #Return the matching entries, the published time of the last entry
+    #and the IDs of the new matching entries
     return matching_entries, feed.entries[-1].published_parsed if feed.entries else None, new_matched_ids
 
 while True:
@@ -56,7 +58,7 @@ while True:
     if matching_entries:
         for entry in matching_entries:
             print(f"Matching entry found in {feed[0]}: {entry.title}")
-            # Notify via telegram:
+            # Notify via telegram API:
             message = f"A new matching entry was found in {feed[0]}: {entry.title}\n{entry.link}"
             url = f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}"
             response = requests.get(url)
@@ -67,5 +69,5 @@ while True:
     else:
         print(f"No new matching entries found in {feed[0]}.")
 
-    matched_ids += new_matched_ids
-    time.sleep(60)
+    matched_ids += new_matched_ids #Add the new matched IDs to the matched IDs list
+    time.sleep(60) #Wait 60 seconds for the next run
